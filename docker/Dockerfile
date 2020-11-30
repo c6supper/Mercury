@@ -7,7 +7,7 @@ ARG DPDK_VER=20.11
 ARG PREFIX_DIR=/usr/local
 
 #wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz
-COPY ./dpdk-${DPDK_VER}.tar.xz dpdk-${DPDK_VER}.tar.xz
+#COPY ./dpdk-${DPDK_VER}.tar.xz dpdk-${DPDK_VER}.tar.xz
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
     apt-get update && \
@@ -17,7 +17,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
               libnuma-dev lua5.4-dev \
                wget pkg-config \
                build-essential linux-headers-generic && \
-#    wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
+    wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
     tar -xf dpdk-${DPDK_VER}.tar.xz && \
     cd dpdk-$DPDK_VER && \
     meson build -Dtests=false -Dexamples=all -Dprefix=${PREFIX_DIR}/dpdk && \
@@ -28,10 +28,10 @@ FROM dpdkbuilder AS pktgenbuilder
 
 ARG PREFIX_DIR=/usr/local
 ARG PKGGEN_VER=20.11.3
-COPY ./pktgen-${PKGGEN_VER}.tar.xz pktgen-${PKGGEN_VER}.tar.xz
+#COPY ./pktgen-${PKGGEN_VER}.tar.xz pktgen-${PKGGEN_VER}.tar.xz
 ENV PKG_CONFIG_PATH "${PREFIX_DIR}/dpdk/lib/x86_64-linux-gnu/pkgconfig"
 RUN cd / && \
-#    wget https://git.dpdk.org/apps/pktgen-dpdk/snapshot/pktgen-${PKGGEN_VER}.tar.xz && \
+    wget https://git.dpdk.org/apps/pktgen-dpdk/snapshot/pktgen-${PKGGEN_VER}.tar.xz && \
     tar -xf pktgen-${PKGGEN_VER}.tar.xz && \
     cd pktgen-${PKGGEN_VER} && \
     CFLAGS=-I${PREFIX_DIR}/dpdk/include meson build -Dprefix=${PREFIX_DIR}/dpdk/ -Denable_lua=true && \
