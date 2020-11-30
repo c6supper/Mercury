@@ -12,11 +12,11 @@ ARG PREFIX_DIR=/usr/local
 RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
     apt-get update && \
     apt-get -y install python3 \
-               meson libbpf-dev libpcap-dev \
-              ninja-build \
-              libnuma-dev lua5.4-dev \
-               wget pkg-config \
-               build-essential && \
+        meson libbpf-dev libpcap-dev \
+        ninja-build \
+        libnuma-dev lua5.4-dev \
+        wget pkg-config \
+        build-essential && \
     wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
     tar -xf dpdk-${DPDK_VER}.tar.xz && \
     cd dpdk-$DPDK_VER && \
@@ -41,7 +41,8 @@ RUN cd / && \
 FROM ubuntu:${UBUNTU_VER}
 ARG DEBIAN_FRONTEND=noninteractive
 
-#LABEL RUN docker run -it --privileged --cap-add=ALL -d -v /sys/bus/pci/devices:/sys/bus/pci/devices \
+#LABEL RUN docker run -it --privileged --cap-add=ALL -d -v /sys/bus/pci/devices:/sys/bus/pci/devices
+#        --network host \
 #        -v /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages \
 #        -v /sys/devices/system/node:/sys/devices/system/node \
 #        -v /dev:/dev -v /lib/modules:/lib/modules --name mercury
