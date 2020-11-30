@@ -16,7 +16,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
               ninja-build \
               libnuma-dev lua5.4-dev \
                wget pkg-config \
-               build-essential linux-headers-generic && \
+               build-essential && \
     wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
     tar -xf dpdk-${DPDK_VER}.tar.xz && \
     cd dpdk-$DPDK_VER && \
@@ -41,10 +41,10 @@ RUN cd / && \
 FROM ubuntu:${UBUNTU_VER}
 ARG DEBIAN_FRONTEND=noninteractive
 
-#LABEL RUN docker run -it --privileged -v /sys/bus/pci/devices:/sys/bus/pci/devices \
+#LABEL RUN docker run -it --privileged --cap-add=ALL -d -v /sys/bus/pci/devices:/sys/bus/pci/devices \
 #        -v /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages \
 #        -v /sys/devices/system/node:/sys/devices/system/node \
-#        -v /dev:/dev --name NAME -e NAME=NAME -e IMAGE=IMAGE IMAGE"
+#        -v /dev:/dev -v /lib/modules:/lib/modules --name mercury
 
 MAINTAINER calvin <c6supper@hotmail.com>
 
@@ -55,8 +55,11 @@ COPY --from=pktgenbuilder ${PREFIX_DIR}/dpdk ${PREFIX_DIR}/dpdk
 ENV PATH="${PREFIX_DIR}/dpdk/bin:${PATH}"
 RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
     apt-get update && \
-    apt-get -y install libnuma1 libbpf0 libpcap0.8 lua5.4 && \
+    apt-get -y install pciutils python3 libnuma1 libbpf0 libpcap0.8 lua5.4 iproute2 && \
     ldconfig ${PREFIX_DIR}/dpdk/lib/x86_64-linux-gnu/ && \
+    apt-get clean autoclean  && \
+    apt-get autoremove --yes  && \
+    rm -rf /var/lib/{apt,dpkg,cache,log}/  && \
     echo "over"
 
 CMD ["/usr/bin/bash"]
