@@ -11,12 +11,12 @@ ARG PREFIX_DIR=/usr/local
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
     apt-get update && \
-    apt-get -y install python3 \
-        meson libbpf-dev libpcap-dev \
-        ninja-build \
-        libnuma-dev lua5.4-dev \
-        wget pkg-config \
-        build-essential && \
+    apt-get -y install python3 libisal-dev libvirt-dev \
+        meson libbpf-dev libpcap-dev intel-cmt-cat \
+        ninja-build libjansson-dev \
+        libnuma-dev lua5.4-dev libbsd-dev \
+        wget pkg-config libmnl-dev libipsec-mb-dev \
+        build-essential libibverbs-dev && \
     wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
     tar -xf dpdk-${DPDK_VER}.tar.xz && \
     cd dpdk-$DPDK_VER && \
@@ -56,7 +56,9 @@ COPY --from=pktgenbuilder ${PREFIX_DIR}/dpdk ${PREFIX_DIR}/dpdk
 ENV PATH="${PREFIX_DIR}/dpdk/bin:${PATH}"
 RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
     apt-get update && \
-    apt-get -y install pciutils python3 libnuma1 libbpf0 libpcap0.8 lua5.4 iproute2 && \
+    #pciutils
+    apt-get -y install python3 libnuma1 libbpf0 libpcap0.8 liblua5.4-0 iproute2 libvirt0 \
+        libjansson4 libbsd0 libmnl0 libibverbs1 libipsec-mb0 libisal2 intel-cmt-cat && \
     ldconfig ${PREFIX_DIR}/dpdk/lib/x86_64-linux-gnu/ && \
     apt-get clean autoclean  && \
     apt-get autoremove --yes  && \
