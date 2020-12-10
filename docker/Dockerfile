@@ -5,6 +5,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ARG DPDK_VER=20.11
 ARG PREFIX_DIR=/usr/local
+ARG BUILD_TYPE=debug
+#BUILD_TYPE=release
 
 #wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz
 #COPY ./dpdk-${DPDK_VER}.tar.xz dpdk-${DPDK_VER}.tar.xz
@@ -20,7 +22,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
     wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
     tar -xf dpdk-${DPDK_VER}.tar.xz && \
     cd dpdk-$DPDK_VER && \
-    meson build -Dtests=false -Dexamples=all -Dprefix=${PREFIX_DIR}/dpdk && \
+    meson build --buildtype=${BUILD_TYPE} -Dtests=false -Dexamples=all -Dprefix=${PREFIX_DIR}/dpdk && \
     ninja -C build -j4 install && \
     ldconfig ${PREFIX_DIR}/dpdk/lib/x86_64-linux-gnu/
 
@@ -41,12 +43,6 @@ RUN cd / && \
 FROM ubuntu:${UBUNTU_VER}
 ARG DEBIAN_FRONTEND=noninteractive
 
-#LABEL RUN docker run -it --privileged --cap-add=ALL -d -v /sys/bus/pci/devices:/sys/bus/pci/devices
-#        --network host \
-#        -v /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages \
-#        -v /sys/devices/system/node:/sys/devices/system/node \
-#        -v /dev:/dev -v /lib/modules:/lib/modules --name mercury
-
 MAINTAINER calvin <c6supper@hotmail.com>
 
 ARG PREFIX_DIR=/usr/local
@@ -66,3 +62,8 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
     echo "over"
 
 CMD ["/usr/bin/bash"]
+
+#docker run -it --privileged --device=/dev/net/tun --network host -d -v /sys/bus/pci/devices:/sys/bus/pci/devices -v /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages -v /sys/devices/system/node:/sys/devices/system/node -v /dev:/dev --name mercury c6supper/mercury
+
+#--vdev=eth_af_packet0,iface=enp4s2 -l 0-3 -n 2 -- -P -p 1 --rx="(0,0,0,0)(0,0,1,1)" --tx="(2,0)(3,1)" --parse-ptype
+#dpdk-l3fwd-thread --log-level=0 --vdev=eth_af_packet0,iface=enp4s2,qpairs=3 -l 0-2 -n 2 -- -p 0x1 -P --rx="(0,0,0,0),(0,1,1,1),(0,2,2,2)" --tx="(0,0),(0,1),(0,2)"  --eth-dest=0,00:18:63:02:cb:54 --parse-ptype
