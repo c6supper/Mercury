@@ -13,7 +13,7 @@ ARG BUILD_TYPE=debug
 
 RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list && \
     apt-get update && \
-    apt-get -y install python3 libisal-dev libvirt-dev \
+    apt-get -y install python3 libisal-dev libvirt-dev libssl-dev \
         meson libbpf-dev libpcap-dev intel-cmt-cat \
         ninja-build libjansson-dev \
         libnuma-dev lua5.4-dev libbsd-dev \
@@ -22,7 +22,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
     wget https://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.xz && \
     tar -xf dpdk-${DPDK_VER}.tar.xz && \
     cd dpdk-$DPDK_VER && \
-    meson build --buildtype=${BUILD_TYPE} -Dtests=false -Dexamples=all -Dprefix=${PREFIX_DIR}/dpdk && \
+    meson build --buildtype=${BUILD_TYPE} -Dtests=false -Duse_hpet=true -Dexamples=all -Dprefix=${PREFIX_DIR}/dpdk && \
     ninja -C build -j4 install && \
     ldconfig ${PREFIX_DIR}/dpdk/lib/x86_64-linux-gnu/
 
@@ -43,7 +43,7 @@ RUN cd / && \
 FROM ubuntu:${UBUNTU_VER}
 ARG DEBIAN_FRONTEND=noninteractive
 
-MAINTAINER calvin <c6supper@hotmail.com>
+LABEL calvin <c6supper@hotmail.com>
 
 ARG PREFIX_DIR=/usr/local
 
@@ -54,7 +54,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/source
     apt-get update && \
     #pciutils
     apt-get -y install python3 libnuma1 libbpf0 libpcap0.8 liblua5.4-0 iproute2 libvirt0 \
-        libjansson4 libbsd0 libmnl0 libibverbs1 libipsec-mb0 libisal2 intel-cmt-cat && \
+        libjansson4 libbsd0 libmnl0 libibverbs1 libipsec-mb0 libisal2 intel-cmt-cat libssl1.1 && \
     ldconfig ${PREFIX_DIR}/dpdk/lib/x86_64-linux-gnu/ && \
     apt-get clean autoclean  && \
     apt-get autoremove --yes  && \
@@ -67,3 +67,4 @@ CMD ["/usr/bin/bash"]
 
 #--vdev=eth_af_packet0,iface=enp4s2 -l 0-3 -n 2 -- -P -p 1 --rx="(0,0,0,0)(0,0,1,1)" --tx="(2,0)(3,1)" --parse-ptype
 #dpdk-l3fwd-thread --log-level=0 --vdev=eth_af_packet0,iface=enp4s2,qpairs=3 -l 0-2 -n 2 -- -p 0x1 -P --rx="(0,0,0,0),(0,1,1,1),(0,2,2,2)" --tx="(0,0),(0,1),(0,2)"  --eth-dest=0,00:18:63:02:cb:54 --parse-ptype
+#--vdev=net_tap,iface=tap0,remote=enp4s2

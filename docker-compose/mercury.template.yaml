@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+   mercury:
+      stdin_open: true
+      tty: true
+      command: [/bin/bash]
+      image: c6supper/mercury:${MERCURY_TAG}
+      container_name: mercury
+      cap_add:
+         - ALL
+      devices:
+         - "/dev/net/tun"
+      network_mode: ${APP_NETWORK_MODE}
+      volumes:
+        - ${MERCURY_DPDK_CODE_VOLUME}:${MERCURY_DPDK_DIR}
+        - /sys/bus/pci/devices:/sys/bus/pci/devices
+        - /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages
+        - /sys/devices/system/node:/sys/devices/system/node
+        - /dev:/dev
+      restart: ${APP_RESTART_POLICY}
+      environment:
+         RUN_AFTER_SIDECAR: 'no'
+      logging:
+         driver: ${APP_LOGGING_DRIVER}
+         options:
+            max-size: ${APP_LOGGING_SIZE}
+            max-file: ${APP_LOGGING_NUMBER}
